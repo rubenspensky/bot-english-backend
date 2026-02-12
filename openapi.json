@@ -1,0 +1,745 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bot English Coach API",
+    "version": "1.0.0",
+    "description": "Backend API for interview coaching sessions."
+  },
+  "components": {
+    "schemas": {}
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "status"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "summary": "Generated OpenAPI document",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "post": {
+        "summary": "Start an interview session",
+        "tags": [
+          "Sessions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "questionCount": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10
+                  },
+                  "allowFollowUps": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "sessionId",
+                    "status",
+                    "allowFollowUps",
+                    "questionNumber",
+                    "totalQuestions",
+                    "promptType",
+                    "prompt"
+                  ],
+                  "properties": {
+                    "sessionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "in_progress"
+                      ]
+                    },
+                    "allowFollowUps": {
+                      "type": "boolean"
+                    },
+                    "questionNumber": {
+                      "type": "integer"
+                    },
+                    "totalQuestions": {
+                      "type": "integer"
+                    },
+                    "promptType": {
+                      "type": "string",
+                      "enum": [
+                        "question"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{sessionId}/question": {
+      "get": {
+        "summary": "Get current prompt for a session",
+        "tags": [
+          "Sessions"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "sessionId",
+                    "status",
+                    "prompt",
+                    "promptType",
+                    "questionNumber",
+                    "totalQuestions"
+                  ],
+                  "properties": {
+                    "sessionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "in_progress",
+                        "completed"
+                      ]
+                    },
+                    "prompt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "promptType": {
+                      "type": "string",
+                      "enum": [
+                        "question",
+                        "follow_up",
+                        "completed"
+                      ]
+                    },
+                    "questionNumber": {
+                      "type": "integer"
+                    },
+                    "totalQuestions": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{sessionId}/answer": {
+      "post": {
+        "summary": "Submit answer text/audio for current prompt",
+        "tags": [
+          "Sessions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "answerText": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "audioBase64": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "responseDelaySec": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "anyOf": [
+                  {
+                    "required": [
+                      "answerText"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "audioBase64"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "sessionId",
+                    "status",
+                    "usedTranscript",
+                    "interviewerMessage",
+                    "nextPrompt",
+                    "promptType",
+                    "result"
+                  ],
+                  "properties": {
+                    "sessionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "in_progress",
+                        "completed"
+                      ]
+                    },
+                    "usedTranscript": {
+                      "type": "string"
+                    },
+                    "interviewerMessage": {
+                      "type": "string"
+                    },
+                    "nextPrompt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "promptType": {
+                      "type": "string",
+                      "enum": [
+                        "question",
+                        "follow_up",
+                        "completed"
+                      ]
+                    },
+                    "result": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "timingSummary",
+                            "corrections",
+                            "improvedBestAnswer",
+                            "interviewTips"
+                          ],
+                          "properties": {
+                            "timingSummary": {
+                              "type": "object",
+                              "required": [
+                                "avgResponseDelaySec",
+                                "longPausesCount",
+                                "totalTurns"
+                              ],
+                              "properties": {
+                                "avgResponseDelaySec": {
+                                  "type": "number"
+                                },
+                                "longPausesCount": {
+                                  "type": "integer"
+                                },
+                                "totalTurns": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "corrections": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "original",
+                                  "corrected",
+                                  "reason"
+                                ],
+                                "properties": {
+                                  "original": {
+                                    "type": "string"
+                                  },
+                                  "corrected": {
+                                    "type": "string"
+                                  },
+                                  "reason": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "improvedBestAnswer": {
+                              "type": "object",
+                              "required": [
+                                "question",
+                                "answer"
+                              ],
+                              "properties": {
+                                "question": {
+                                  "type": "string"
+                                },
+                                "answer": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "interviewTips": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{sessionId}/result": {
+      "get": {
+        "summary": "Get final session result/feedback",
+        "tags": [
+          "Sessions"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "in": "path",
+            "name": "sessionId",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "sessionId",
+                    "status",
+                    "result"
+                  ],
+                  "properties": {
+                    "sessionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "in_progress",
+                        "completed"
+                      ]
+                    },
+                    "result": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "timingSummary",
+                            "corrections",
+                            "improvedBestAnswer",
+                            "interviewTips"
+                          ],
+                          "properties": {
+                            "timingSummary": {
+                              "type": "object",
+                              "required": [
+                                "avgResponseDelaySec",
+                                "longPausesCount",
+                                "totalTurns"
+                              ],
+                              "properties": {
+                                "avgResponseDelaySec": {
+                                  "type": "number"
+                                },
+                                "longPausesCount": {
+                                  "type": "integer"
+                                },
+                                "totalTurns": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "corrections": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "original",
+                                  "corrected",
+                                  "reason"
+                                ],
+                                "properties": {
+                                  "original": {
+                                    "type": "string"
+                                  },
+                                  "corrected": {
+                                    "type": "string"
+                                  },
+                                  "reason": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "improvedBestAnswer": {
+                              "type": "object",
+                              "required": [
+                                "question",
+                                "answer"
+                              ],
+                              "properties": {
+                                "question": {
+                                  "type": "string"
+                                },
+                                "answer": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "interviewTips": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

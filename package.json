@@ -1,0 +1,26 @@
+{
+  "name": "bot-english",
+  "version": "0.1.0",
+  "description": "Interview Coach backend API",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "openapi": "node --import tsx scripts/generate-openapi.ts"
+  },
+  "dependencies": {
+    "@fastify/swagger": "^9.4.2",
+    "@fastify/swagger-ui": "^5.2.2",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "openai": "^4.86.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
