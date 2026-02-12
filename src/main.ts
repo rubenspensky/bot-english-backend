@@ -3,9 +3,11 @@ import { CreateSessionUseCase } from './application/use-cases/create-session.js'
 import { GetCurrentPromptUseCase } from './application/use-cases/get-current-prompt.js';
 import { GetSessionResultUseCase } from './application/use-cases/get-session-result.js';
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.js';
+import { SynthesizeSpeechUseCase } from './application/use-cases/synthesize-speech.js';
 import { createOpenAIClient, verifyOpenAIAuth } from './infrastructure/openai/openai-client.js';
 import { OpenAIInterviewCoachService } from './infrastructure/openai/openai-interview-coach-service.js';
 import { OpenAISpeechToTextService } from './infrastructure/openai/openai-speech-to-text-service.js';
+import { OpenAITextToSpeechService } from './infrastructure/openai/openai-text-to-speech-service.js';
 import { InMemorySessionRepository } from './infrastructure/repositories/in-memory-session-repository.js';
 import { buildServer } from './presentation/http/server.js';
 
@@ -18,12 +20,14 @@ async function start() {
   await verifyOpenAIAuth(openAIClient);
   const interviewCoachService = new OpenAIInterviewCoachService(openAIClient);
   const speechToTextService = new OpenAISpeechToTextService(openAIClient);
+  const textToSpeechService = new OpenAITextToSpeechService(openAIClient);
 
   const app = await buildServer({
     createSession: new CreateSessionUseCase(sessionRepository),
     getCurrentPrompt: new GetCurrentPromptUseCase(sessionRepository),
     submitAnswer: new SubmitAnswerUseCase(sessionRepository, speechToTextService, interviewCoachService),
-    getSessionResult: new GetSessionResultUseCase(sessionRepository)
+    getSessionResult: new GetSessionResultUseCase(sessionRepository),
+    synthesizeSpeech: new SynthesizeSpeechUseCase(textToSpeechService)
   });
 
   await app.listen({ host: HOST, port: PORT });

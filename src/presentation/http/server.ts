@@ -8,10 +8,15 @@ import { CreateSessionUseCase } from '../../application/use-cases/create-session
 import { GetCurrentPromptUseCase } from '../../application/use-cases/get-current-prompt.js';
 import { GetSessionResultUseCase } from '../../application/use-cases/get-session-result.js';
 import { SubmitAnswerUseCase } from '../../application/use-cases/submit-answer.js';
+import { SynthesizeSpeechUseCase } from '../../application/use-cases/synthesize-speech.js';
 
 const createSessionSchema = z.object({
   questionCount: z.number().int().min(1).max(10).optional(),
   allowFollowUps: z.boolean().optional()
+});
+
+const synthesizeSpeechSchema = z.object({
+  text: z.string().min(1).max(5000)
 });
 
 const submitAnswerSchema = z.object({
@@ -42,8 +47,9 @@ export function buildServer(deps: {
   getCurrentPrompt: GetCurrentPromptUseCase;
   submitAnswer: SubmitAnswerUseCase;
   getSessionResult: GetSessionResultUseCase;
+  synthesizeSpeech: SynthesizeSpeechUseCase;
 }): Promise<FastifyInstance> {
-  const app = Fastify({ logger: true });
+  const app = Fastify({ logger: true, bodyLimit: 10 * 1024 * 1024 });
 
   return registerAndBuild(app, deps);
 }
@@ -55,6 +61,7 @@ async function registerAndBuild(
     getCurrentPrompt: GetCurrentPromptUseCase;
     submitAnswer: SubmitAnswerUseCase;
     getSessionResult: GetSessionResultUseCase;
+    synthesizeSpeech: SynthesizeSpeechUseCase;
   }
 ): Promise<FastifyInstance> {
   await app.register(swagger, {
@@ -389,6 +396,41 @@ async function registerAndBuild(
     async (request) => {
       const params = z.object({ sessionId: z.string().uuid() }).parse(request.params);
       return deps.getSessionResult.execute({ sessionId: params.sessionId });
+    }
+  );
+
+  app.post(
+    '/tts',
+    {
+      schema: {
+        tags: ['TTS'],
+        summary: 'Synthesize speech from text',
+        body: {
+          type: 'object',
+          required: ['text'],
+          additionalProperties: false,
+          properties: {
+            text: { type: 'string', minLength: 1, maxLength: 5000 }
+          }
+        },
+        response: {
+          200: {
+            type: 'string',
+            description: 'MP3 audio binary'
+          },
+          400: errorResponseSchema,
+          500: errorResponseSchema
+        }
+      }
+    },
+    async (request, reply) => {
+      const parsed = synthesizeSpeechSchema.safeParse(request.body);
+      if (!parsed.success) {
+        throw new ValidationError('Invalid request body for TTS.');
+      }
+
+      const result = await deps.synthesizeSpeech.execute({ text: parsed.data.text });
+      return reply.header('Content-Type', result.mimeType).send(result.audio);
     }
   );
 
